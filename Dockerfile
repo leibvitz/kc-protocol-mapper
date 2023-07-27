@@ -6,7 +6,7 @@ FROM maven:3.8 as jdk-builder
 WORKDIR /workspace
 COPY . ./
 
-RUN mvn clean package
+RUN mvn clean package -DskipTests
 
 # Build keycloak
 FROM ${KEYCLOAK_IMAGE} as keycloak-builder

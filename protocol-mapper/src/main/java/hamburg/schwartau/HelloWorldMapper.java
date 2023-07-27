@@ -92,19 +92,6 @@ public class HelloWorldMapper extends AbstractOIDCProtocolMapper implements OIDC
         } catch (Exception e) {
             // TODO: handle exception
         }
-
-        sb.append("|||");
-
-        ResteasyWebTarget target;
-        ResteasyClient client;
-
-        ResteasyClientBuilder resteasyClientBuilder = (ResteasyClientBuilder) ResteasyClientBuilder.newBuilder();
-        //resteasyClientBuilder.connectionPoolSize(10);
-        client = resteasyClientBuilder.build();
-        target = client.target("https://random-data-api.com/api/v2/banks");
-
-        sb.append(target.request().get(String.class));
-
         OIDCAttributeMapperHelper.mapClaim(token, mappingModel, sb.toString());
     }
 
