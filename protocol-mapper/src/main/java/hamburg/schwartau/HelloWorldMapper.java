@@ -1,5 +1,12 @@
 package hamburg.schwartau;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.keycloak.broker.provider.util.SimpleHttp;
 import org.keycloak.models.ClientSessionContext;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.ProtocolMapperModel;
@@ -11,9 +18,6 @@ import org.keycloak.protocol.oidc.mappers.OIDCIDTokenMapper;
 import org.keycloak.protocol.oidc.mappers.UserInfoTokenMapper;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.representations.IDToken;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /*
  * Our own example protocol mapper.
@@ -81,7 +85,27 @@ public class HelloWorldMapper extends AbstractOIDCProtocolMapper implements OIDC
         // be configured in keycloak for this protocol mapper were set in the static intializer of this class.
         //
         // Sets a static "Hello world" string, but we could write a dynamic value like a group attribute here too.
-        OIDCAttributeMapperHelper.mapClaim(token, mappingModel, "hello world");
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            sb.append(SimpleHttp.doGet("https://random-data-api.com/api/v2/banks", keycloakSession).asString());
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+        sb.append("|||");
+
+        ResteasyWebTarget target;
+        ResteasyClient client;
+
+        ResteasyClientBuilder resteasyClientBuilder = (ResteasyClientBuilder) ResteasyClientBuilder.newBuilder();
+        //resteasyClientBuilder.connectionPoolSize(10);
+        client = resteasyClientBuilder.build();
+        target = client.target("https://random-data-api.com/api/v2/banks");
+
+        sb.append(target.request().get(String.class));
+
+        OIDCAttributeMapperHelper.mapClaim(token, mappingModel, sb.toString());
     }
 
 }
